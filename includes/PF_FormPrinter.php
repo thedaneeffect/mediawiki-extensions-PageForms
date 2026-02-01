@@ -1702,8 +1702,15 @@ END;
 						$conditional_content = implode( '|', array_slice( $tag_components, 2 ) );
 						// Convert ((X)) to {{X}} for template calls
 						$conditional_content = preg_replace( '/\(\(([^)]+)\)\)/', '{{$1}}', $conditional_content );
+						$conditional_content = trim( $conditional_content );
 						// Add the conditional to the wiki page
-						$wiki_page->addConditional( $conditional_template_name, trim( $conditional_content ) );
+						$wiki_page->addConditional( $conditional_template_name, $conditional_content );
+						// Strip the conditional content from existing page content to prevent duplication
+						if ( $existing_page_content !== null && $conditional_content !== '' ) {
+							// Escape regex special chars and allow flexible whitespace
+							$pattern = '/' . preg_quote( $conditional_content, '/' ) . '\s*/';
+							$existing_page_content = preg_replace( $pattern, '', $existing_page_content );
+						}
 					}
 					// Remove the tag from section
 					$section = substr_replace( $section, '', $brackets_loc, $brackets_end_loc + 3 - $brackets_loc );
