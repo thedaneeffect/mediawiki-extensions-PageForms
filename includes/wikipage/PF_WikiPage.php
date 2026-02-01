@@ -51,6 +51,10 @@ class PFWikiPage {
 		$this->mComponents[] = new PFWikiPageSection( $sectionName, $headerLevel, $sectionText, $sectionOptions );
 	}
 
+	function addConditional( $templateName, $text ) {
+		$this->mComponents[] = new PFWikiPageConditional( $templateName, $text );
+	}
+
 	function addFreeTextSection() {
 		$this->mComponents[] = new PFWikiPageFreeText();
 	}
@@ -158,6 +162,20 @@ class PFWikiPage {
 		return $text;
 	}
 
+	/**
+	 * Check if a template with the given name has any instances in the page.
+	 */
+	function templateHasInstances( $templateName ) {
+		foreach ( $this->mComponents as $component ) {
+			if ( $component instanceof PFWikiPageTemplate ) {
+				if ( $component->getName() == $templateName ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	function createPageText() {
 		// First, go through and store the templates that are embedded,
 		// so that they can have special printing.
@@ -188,6 +206,11 @@ class PFWikiPage {
 					$freeText = "<onlyinclude>$freeText</onlyinclude>";
 				}
 				$pageText .= "$freeText\n";
+			} elseif ( $component instanceof PFWikiPageConditional ) {
+				// Only output the conditional text if the referenced template has instances
+				if ( $this->templateHasInstances( $component->getTemplateName() ) ) {
+					$pageText .= $component->getText() . "\n";
+				}
 			}
 		}
 		return $pageText;
