@@ -1693,31 +1693,17 @@ END;
 				// conditional output processing (if exists)
 				// =====================================================
 				} elseif ( $tag_title == 'if exists' ) {
-					// Syntax: {{{if exists|TemplateName}}}content{{{end if}}}
+					// Syntax: {{{if exists|TemplateName|content to output}}}
 					// Outputs the content only if the specified template has instances
-					if ( count( $tag_components ) >= 2 ) {
+					if ( count( $tag_components ) >= 3 ) {
 						$conditional_template_name = trim( $tag_components[1] );
-						// Find the matching {{{end if}}}
-						$end_if_loc = strpos( $section, '{{{end if}}}', $brackets_end_loc );
-						if ( $end_if_loc !== false ) {
-							// Extract content between the tags
-							$content_start = $brackets_end_loc + 3;
-							$conditional_content = substr( $section, $content_start, $end_if_loc - $content_start );
-							// Strip <nowiki> tags that were used to prevent parsing in the form definition
-							$conditional_content = preg_replace( '/<\/?nowiki>/', '', $conditional_content );
-							// Add the conditional to the wiki page
-							$wiki_page->addConditional( $conditional_template_name, trim( $conditional_content ) );
-							// Remove the entire block from section (including both tags and content)
-							$block_end = $end_if_loc + strlen( '{{{end if}}}' );
-							$section = substr_replace( $section, '', $brackets_loc, $block_end - $brackets_loc );
-						} else {
-							// No matching end if - just remove the opening tag
-							$section = substr_replace( $section, '', $brackets_loc, $brackets_end_loc + 3 - $brackets_loc );
-						}
-					} else {
-						// Missing template name - remove the tag
-						$section = substr_replace( $section, '', $brackets_loc, $brackets_end_loc + 3 - $brackets_loc );
+						// The content is the third parameter (and any subsequent ones joined by |)
+						$conditional_content = implode( '|', array_slice( $tag_components, 2 ) );
+						// Add the conditional to the wiki page
+						$wiki_page->addConditional( $conditional_template_name, trim( $conditional_content ) );
 					}
+					// Remove the tag from section
+					$section = substr_replace( $section, '', $brackets_loc, $brackets_end_loc + 3 - $brackets_loc );
 				// =====================================================
 				// default outer level processing
 				// =====================================================
