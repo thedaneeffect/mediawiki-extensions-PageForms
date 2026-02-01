@@ -1703,6 +1703,8 @@ END;
 							// Extract content between the tags
 							$content_start = $brackets_end_loc + 3;
 							$conditional_content = substr( $section, $content_start, $end_if_loc - $content_start );
+							// Strip <nowiki> tags that were used to prevent parsing in the form definition
+							$conditional_content = preg_replace( '/<\/?nowiki>/', '', $conditional_content );
 							// Add the conditional to the wiki page
 							$wiki_page->addConditional( $conditional_template_name, trim( $conditional_content ) );
 							// Remove the entire block from section (including both tags and content)
