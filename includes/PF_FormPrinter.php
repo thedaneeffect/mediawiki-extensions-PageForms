@@ -1694,11 +1694,14 @@ END;
 				// =====================================================
 				} elseif ( $tag_title == 'if exists' ) {
 					// Syntax: {{{if exists|TemplateName|content to output}}}
+					// Use ((TemplateName)) for template calls to prevent MediaWiki expansion
 					// Outputs the content only if the specified template has instances
 					if ( count( $tag_components ) >= 3 ) {
 						$conditional_template_name = trim( $tag_components[1] );
 						// The content is the third parameter (and any subsequent ones joined by |)
 						$conditional_content = implode( '|', array_slice( $tag_components, 2 ) );
+						// Convert ((X)) to {{X}} for template calls
+						$conditional_content = preg_replace( '/\(\(([^)]+)\)\)/', '{{$1}}', $conditional_content );
 						// Add the conditional to the wiki page
 						$wiki_page->addConditional( $conditional_template_name, trim( $conditional_content ) );
 					}
