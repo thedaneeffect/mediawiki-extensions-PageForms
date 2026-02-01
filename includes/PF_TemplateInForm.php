@@ -11,6 +11,7 @@ class PFTemplateInForm {
 	private $mIntro;
 	private $mAddButtonText;
 	private $mDisplay;
+	private $mFormat;
 	private $mEventTitleField;
 	private $mEventDateField;
 	private $mEventStartDateField;
@@ -116,6 +117,8 @@ class PFTemplateInForm {
 					}
 				} elseif ( $sub_components[0] == 'display' ) {
 					$tif->mDisplay = $sub_components[1];
+				} elseif ( $sub_components[0] == 'format' ) {
+					$tif->mFormat = $sub_components[1];
 				} elseif ( $sub_components[0] == 'height' ) {
 					$tif->mHeight = $sub_components[1];
 				} elseif ( $sub_components[0] == 'displayed fields when minimized' ) {
@@ -169,6 +172,10 @@ class PFTemplateInForm {
 
 	function getDisplay() {
 		return $this->mDisplay;
+	}
+
+	function getFormat() {
+		return $this->mFormat;
 	}
 
 	function getEventTitleField() {

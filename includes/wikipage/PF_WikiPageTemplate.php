@@ -12,10 +12,12 @@ class PFWikiPageTemplate {
 	private $mName;
 	private $mParams = [];
 	private $mAddUnhandledParams;
+	private $mFormat;
 
-	function __construct( $name, $addUnhandledParams ) {
+	function __construct( $name, $addUnhandledParams, $format = null ) {
 		$this->mName = $name;
 		$this->mAddUnhandledParams = $addUnhandledParams;
+		$this->mFormat = $format;
 	}
 
 	function addParam( $paramName, $value ) {
@@ -64,5 +66,9 @@ class PFWikiPageTemplate {
 
 	function getParams() {
 		return $this->mParams;
+	}
+
+	function getFormat() {
+		return $this->mFormat;
 	}
 }

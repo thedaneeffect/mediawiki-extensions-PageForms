@@ -16,7 +16,8 @@ class PFWikiPage {
 
 	function addTemplate( $templateInForm ) {
 		$templateName = $templateInForm->getTemplateName();
-		$this->mComponents[] = new PFWikiPageTemplate( $templateName, !$templateInForm->allowsMultiple() );
+		$format = $templateInForm->getFormat();
+		$this->mComponents[] = new PFWikiPageTemplate( $templateName, !$templateInForm->allowsMultiple(), $format );
 		if ( $templateInForm->getInstanceNum() == 0 ) {
 			$embedInTemplate = $templateInForm->getEmbedInTemplate();
 			$embedInParam = $templateInForm->getEmbedInField();
@@ -100,6 +101,7 @@ class PFWikiPage {
 	function createTemplateCall( $template ) {
 		$lastNumericParam = 0;
 		$template->addUnhandledParams();
+		$useInlineFormat = ( $template->getFormat() === 'inline' );
 
 		$templateCall = '{{' . $template->getName();
 		foreach ( $template->getParams() as $templateParam ) {
@@ -125,7 +127,12 @@ class PFWikiPage {
 					$lastNumericParam++;
 				}
 			} else {
-				$templateCall .= "\n|$paramName=";
+				// Use inline format (no newlines) if specified
+				if ( $useInlineFormat ) {
+					$templateCall .= "|$paramName=";
+				} else {
+					$templateCall .= "\n|$paramName=";
+				}
 			}
 			if ( $embeddedTemplateName != '' ) {
 				foreach ( $this->mEmbeddedTemplateCalls[$embeddedTemplateName] as $embeddedTemplate ) {
@@ -141,8 +148,8 @@ class PFWikiPage {
 		$templateCall = preg_replace( '/\|*$/', '', $templateCall );
 
 		// Add another newline before the final bracket, if this
-		// template call is already more than one line
-		if ( strpos( $templateCall, "\n" ) ) {
+		// template call is already more than one line (and not inline format)
+		if ( !$useInlineFormat && strpos( $templateCall, "\n" ) ) {
 			$templateCall .= "\n";
 		}
 		$templateCall .= "}}";
